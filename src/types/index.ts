@@ -21,3 +21,5 @@ export interface QrCodeInput {
   size: number;
   createdAt: string;
 }
+
+export type QrDataType = "url" | "email" | "phone" | "wifi" | "vcard";
