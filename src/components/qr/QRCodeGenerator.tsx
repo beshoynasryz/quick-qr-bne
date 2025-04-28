@@ -15,10 +15,10 @@ import {
   Mail, 
   Phone, 
   Wifi,
-  VCard, 
-  FilePng, 
-  FileSvg, 
-  FilePdf,
+  Contact, 
+  FileText,
+  Files,
+  FilePen,
   ImageIcon
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -79,7 +79,12 @@ export function QRCodeGenerator() {
     
     setLogo(file);
     const reader = new FileReader();
-    reader.onload = (e) => setLogoPreview(e.target?.result as string);
+    reader.onload = (e) => {
+      const result = e.target?.result;
+      if (typeof result === 'string') {
+        setLogoPreview(result);
+      }
+    };
     reader.readAsDataURL(file);
   };
 
@@ -137,30 +142,32 @@ export function QRCodeGenerator() {
           canvas.height = qrImage.height;
           
           // Draw QR code
-          ctx?.drawImage(qrImage, 0, 0);
+          if (ctx) {
+            ctx.drawImage(qrImage, 0, 0);
           
-          // Draw logo in center
-          if (logoPreview) {
-            const logoImg = new Image();
-            logoImg.onload = () => {
-              const logoWidth = qrImage.width * (logoSize / 100);
-              const logoHeight = logoWidth;
-              const x = (qrImage.width - logoWidth) / 2;
-              const y = (qrImage.height - logoHeight) / 2;
-              
-              // Create white background for logo
-              ctx?.fillStyle = "#FFFFFF";
-              ctx?.fillRect(x - 5, y - 5, logoWidth + 10, logoHeight + 10);
-              
-              // Draw logo
-              ctx?.drawImage(logoImg, x, y, logoWidth, logoHeight);
-              
-              // Convert to data URL
-              const finalQrWithLogo = canvas.toDataURL('image/png');
-              setQrImage(finalQrWithLogo);
-              saveToDatabaseIfLoggedIn(content);
-            };
-            logoImg.src = logoPreview;
+            // Draw logo in center
+            if (logoPreview) {
+              const logoImg = new Image();
+              logoImg.onload = () => {
+                const logoWidth = qrImage.width * (logoSize / 100);
+                const logoHeight = logoWidth;
+                const x = (qrImage.width - logoWidth) / 2;
+                const y = (qrImage.height - logoHeight) / 2;
+                
+                // Create white background for logo
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillRect(x - 5, y - 5, logoWidth + 10, logoHeight + 10);
+                
+                // Draw logo
+                ctx.drawImage(logoImg, x, y, logoWidth, logoHeight);
+                
+                // Convert to data URL
+                const finalQrWithLogo = canvas.toDataURL('image/png');
+                setQrImage(finalQrWithLogo);
+                saveToDatabaseIfLoggedIn(content);
+              };
+              logoImg.src = logoPreview;
+            }
           }
         };
         qrImage.src = qrDataUrl;
@@ -257,7 +264,7 @@ export function QRCodeGenerator() {
                   <span className="text-xs mt-1">WiFi</span>
                 </TabsTrigger>
                 <TabsTrigger value="vcard" className="flex flex-col items-center">
-                  <VCard className="h-4 w-4" />
+                  <Contact className="h-4 w-4" />
                   <span className="text-xs mt-1">vCard</span>
                 </TabsTrigger>
               </TabsList>
@@ -573,7 +580,7 @@ export function QRCodeGenerator() {
                 className={downloadFormat === "png" ? "bg-primary text-primary-foreground" : ""} 
                 onClick={() => setDownloadFormat("png")}
               >
-                <FilePng className="h-4 w-4 mr-2" />
+                <FilePen className="h-4 w-4 mr-2" />
                 PNG
               </Button>
               <Button 
@@ -582,7 +589,7 @@ export function QRCodeGenerator() {
                 className={downloadFormat === "svg" ? "bg-primary text-primary-foreground" : ""} 
                 onClick={() => setDownloadFormat("svg")}
               >
-                <FileSvg className="h-4 w-4 mr-2" />
+                <Files className="h-4 w-4 mr-2" />
                 SVG
               </Button>
               <Button 
@@ -591,7 +598,7 @@ export function QRCodeGenerator() {
                 className={downloadFormat === "pdf" ? "bg-primary text-primary-foreground" : ""} 
                 onClick={() => setDownloadFormat("pdf")}
               >
-                <FilePdf className="h-4 w-4 mr-2" />
+                <FileText className="h-4 w-4 mr-2" />
                 PDF
               </Button>
             </div>
